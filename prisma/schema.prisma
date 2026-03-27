@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  userId Int @id @default(autoincrement())
+
+  username String @unique
+
+  name String
+
+  password String
+
+  sentFriendships    Friendship[] @relation("sent")
+  receivedFriendship Friendship[] @relation("received")
+
+  sentMessages Message[]
+
+  chatParticipants ChatParticipant[]
+}
+
+model Friendship {
+  friendshipId Int @id @default(autoincrement())
+
+  senderId Int
+  sender   User @relation("sent", fields: [senderId], references: [userId])
+
+  receiverId Int
+  receiver   User @relation("received", fields: [receiverId], references: [userId])
+
+  friendshipStatus FriendshipStatus
+
+  @@unique([senderId, receiverId])
+  @@index([senderId, friendshipStatus])
+  @@index([receiverId, friendshipStatus])
+}
+
+enum FriendshipStatus {
+  PENDING
+  DENIED
+  ACCEPTED
+}
+
+model Message {
+  messageId Int @id @default(autoincrement())
+
+  content String
+
+  userId Int
+  sender User @relation(fields: [userId], references: [userId])
+
+  sentAt DateTime @default(now())
+
+  edited Boolean @default(false)
+
+  chatId Int
+  chat   Chat @relation("chat", fields: [chatId], references: [chatId])
+
+  @@index([chatId, sentAt])
+}
+
+model Chat {
+  chatId Int @id @default(autoincrement())
+
+  createdAt     DateTime @default(now())
+  lastMessageAt DateTime
+
+  messages Message[] @relation("chat")
+
+  chatParticipants ChatParticipant[]
+
+  @@index([lastMessageAt])
+}
+
+model ChatParticipant {
+  chatParticipantId Int @id @default(autoincrement())
+
+  visible Boolean @default(true)
+
+  chatId Int
+  chat   Chat @relation(fields: [chatId], references: [chatId])
+
+  userId Int
+  user   User @relation(fields: [userId], references: [userId])
+
+  lastReadAt DateTime?
+
+  @@unique([chatId, userId])
+  @@index([userId, visible])
+}
+
+model TokenBlacklist {
+  tokenBlacklistId Int @id @default(autoincrement())
+
+  token     String
+  expiresAt DateTime
+}
