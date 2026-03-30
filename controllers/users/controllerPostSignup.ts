@@ -15,7 +15,7 @@ const controllerPostSignup: any[] = [
     async (req: Request, res: Response) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return error400ExpressValidator(res, errors);
+            return error400ExpressValidator(res, errors.array());
         }
 
         const { username, name, password } = matchedData(req);

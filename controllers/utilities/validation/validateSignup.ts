@@ -15,7 +15,7 @@ const validateSignup = [
     }).custom(async (username) => {
         const userWithUsername = await getUserByUsername(username);
         if (userWithUsername !== null) {
-            throw new Error('Username already exists');
+            throw new Error('Username already taken');
         }
         return true;
     }),

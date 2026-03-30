@@ -24,6 +24,6 @@ export default async function controllerPostToken(req: Request, res: Response) {
 
     return res.json({
         success: true,
-        token: jwt,
+        token: jwt.token,
     });
 }

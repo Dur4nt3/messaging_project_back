@@ -1,5 +1,5 @@
 import type { Response } from 'express';
-import type { Result } from 'express-validator';
+import type { ValidationError } from 'express-validator';
 
 export function errorCustom(
     res: Response,
@@ -21,7 +21,7 @@ export function error400(res: Response, message: string) {
 
 export function error400ExpressValidator(
     res: Response,
-    errors: Result,
+    errors: ValidationError[],
 ) {
     return res.status(400).json({
         success: false,
