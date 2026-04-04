@@ -9,7 +9,7 @@ import {
 
 import { getPublicKey } from './getRSAKey';
 
-import { getUserById } from '../db/queries/userQueries';
+import { getUserById } from '../db/queries/user/userQueries';
 
 const PUBLIC_KEY = getPublicKey();
 

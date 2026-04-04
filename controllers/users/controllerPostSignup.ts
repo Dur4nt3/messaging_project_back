@@ -4,7 +4,11 @@ import { matchedData, validationResult } from 'express-validator';
 
 import validateSignup from '../utilities/validation/validateSignup';
 import { generatePassword } from '../../auth/passwordUtils';
-import { insertUser } from '../../db/queries/userQueries';
+
+import { insertUser, deleteUser } from '../../db/queries/user/userMutations';
+
+import initializeUser from '../utilities/initialization/initializeUser';
+
 import {
     error400ExpressValidator,
     error500,
@@ -21,8 +25,14 @@ const controllerPostSignup: any[] = [
         const { username, name, password } = matchedData(req);
         const passwordHash = await generatePassword(password);
 
-        const creationSuccess = await insertUser(username, name, passwordHash);
-        if (!creationSuccess) {
+        const createdUser = await insertUser(username, name, passwordHash);
+        if (createdUser === null) {
+            return error500(res);
+        }
+
+        const initialized = await initializeUser(createdUser);
+        if (!initialized) {
+            await deleteUser(createdUser.userId);
             return error500(res);
         }
 

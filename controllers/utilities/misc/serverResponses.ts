@@ -12,6 +12,8 @@ export function errorCustom(
     });
 }
 
+// Requires a message
+// This is done due to variance of the error source
 export function error400(res: Response, message: string) {
     return res.status(400).json({
         success: false,

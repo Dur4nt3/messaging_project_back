@@ -1,6 +1,5 @@
-import { prisma } from '../../lib/prisma';
-
-import logError from '../utilities/logError';
+import { prisma } from '../../../lib/prisma';
+import logError from '../../utilities/logError';
 
 export async function getUserByUsername(username: string) {
     try {
@@ -35,23 +34,33 @@ export async function getUserById(userId: number) {
     }
 }
 
-export async function insertUser(
-    username: string,
-    name: string,
-    passwordHash: string,
-) {
+export async function getAllUsersRedacted() {
     try {
-        await prisma.user.create({
-            data: {
-                username,
-                name,
-                password: passwordHash,
+        const users = await prisma.user.findMany({
+            select: {
+                username: true,
             },
         });
 
-        return true;
+        return users;
     } catch (error) {
-        logError('Error occurred when attempting to insert user', error);
-        return false;
+        logError('Error occurred when attempting to get user by id', error);
+        return [];
+    }
+}
+
+export async function isUserBot(userId: number) {
+    try {
+        const user = await prisma.user.findFirst({
+            where: {
+                userId,
+                type: 'BOT',
+            }
+        });
+
+        return user !== null;
+    } catch (error) {
+        logError('Error occurred when attempting to get user by id', error);
+        return null;
     }
 }

@@ -1,7 +1,7 @@
 import { body } from 'express-validator';
 
 import identifierStringValidation from './identifierStringValidation';
-import { getUserByUsername } from '../../../db/queries/userQueries';
+import { getUserByUsername } from '../../../db/queries/user/userQueries';
 
 const emptyErr = 'must not be empty';
 

@@ -10,11 +10,13 @@ datasource db {
 model User {
   userId Int @id @default(autoincrement())
 
+  type AccountType @default(HUMAN)
+
   username String @unique
 
   name String
 
-  password String
+  password String?
 
   sentFriendships    Friendship[] @relation("sent")
   receivedFriendship Friendship[] @relation("received")
@@ -24,16 +26,22 @@ model User {
   chatParticipants ChatParticipant[]
 }
 
+enum AccountType {
+  HUMAN
+  BOT
+  SYSTEM
+}
+
 model Friendship {
   friendshipId Int @id @default(autoincrement())
-
+  
   senderId Int
   sender   User @relation("sent", fields: [senderId], references: [userId])
 
   receiverId Int
   receiver   User @relation("received", fields: [receiverId], references: [userId])
 
-  friendshipStatus FriendshipStatus
+  friendshipStatus FriendshipStatus @default(PENDING)
 
   @@unique([senderId, receiverId])
   @@index([senderId, friendshipStatus])
@@ -51,8 +59,8 @@ model Message {
 
   content String
 
-  userId Int
-  sender User @relation(fields: [userId], references: [userId])
+  senderId Int
+  sender   User @relation(fields: [senderId], references: [userId])
 
   sentAt DateTime @default(now())
 
@@ -69,6 +77,8 @@ model Chat {
 
   createdAt     DateTime @default(now())
   lastMessageAt DateTime
+
+  isGroup Boolean @default(false)
 
   messages Message[] @relation("chat")
 

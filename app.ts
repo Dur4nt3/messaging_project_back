@@ -7,6 +7,7 @@ import './auth/passportConfig';
 
 import usersRouter from './routes/usersRouter';
 import authRouter from './routes/authRouter';
+import chatsRouter from './routes/chatsRouter';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
+app.use('/chats', chatsRouter);
 
 // eslint-disable-next-line no-unused-vars
 app.use((err: any, req: any, res: any, next: any) => {

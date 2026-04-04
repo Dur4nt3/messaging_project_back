@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import { getUserByUsername } from '../../db/queries/userQueries';
+import { getUserByUsername } from '../../db/queries/user/userQueries';
 import { validatePassword } from '../../auth/passwordUtils';
 import { errorCustom } from '../utilities/misc/serverResponses';
 import issueJWT from '../../auth/issueJWT';
@@ -10,7 +10,7 @@ export default async function controllerPostToken(req: Request, res: Response) {
 
     const user = await getUserByUsername(username);
 
-    if (user === null) {
+    if (user === null || user.type !== 'HUMAN' || user.password === null) {
         return errorCustom(res, 401, 'Invalid credentials');
     }
 
