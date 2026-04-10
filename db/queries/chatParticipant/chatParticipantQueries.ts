@@ -1,6 +1,43 @@
 import { prisma } from '../../../lib/prisma';
 import logError from '../../utilities/logError';
 
+export async function getChatName(
+    chatId: number,
+    isGroup: boolean,
+    currentUserId: number,
+) {
+    try {
+        if (isGroup) {
+            return 'PLACEHOLDER FOR GROUP NAME';
+        }
+
+        const participant = await prisma.chatParticipant.findFirst({
+            where: {
+                chatId,
+                userId: {
+                    not: currentUserId,
+                },
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
+        });
+
+        if (participant === null) {
+            return null;
+        }
+
+        return participant?.user.name;
+    } catch (error) {
+        logError('Error occurred when attempting to get chat name', error);
+        return null;
+    }
+}
+
 export async function getCurrentUserChatParticipantData(
     chatId: number,
     userId: number,
@@ -32,11 +69,11 @@ export async function getPrivateChatParticipants(chatId: number) {
                 chatId,
                 chat: {
                     isGroup: false,
-                }
+                },
             },
             include: {
                 user: true,
-            }
+            },
         });
 
         return participants;

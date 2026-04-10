@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { error401, error500 } from '../utilities/misc/serverResponses';
 
-import getDashboardViewChatData from '../utilities/misc/geDashboardViewChatData';
+import getDashboardViewChatData from '../utilities/formatters/getDashboardViewChatData';
 
 export default async function controllerGetAllChats(
     req: Request,

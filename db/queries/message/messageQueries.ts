@@ -1,16 +1,38 @@
 import { prisma } from '../../../lib/prisma';
 import logError from '../../utilities/logError';
 
-export async function getChatMessages(chatId: number, limit: number = 50) {
+import type ChatMessage from '../../../types/ChatMessage';
+
+export async function getChatMessages(
+    chatId: number,
+    fromMessageId: number | null = null,
+    limit: number = 50,
+): Promise<ChatMessage[] | null> {
     try {
         const messages = await prisma.message.findMany({
             where: {
                 chatId,
+                messageId: {
+                    gt: fromMessageId ? fromMessageId : 0,
+                },
             },
             orderBy: {
-                sentAt: 'desc',
+                sentAt: 'asc',
             },
             take: limit,
+            include: {
+                sender: {
+                    select: {
+                        username: true,
+                        name: true,
+                    },
+                },
+                chat: {
+                    select: {
+                        isGroup: true,
+                    },
+                },
+            },
         });
 
         return messages;

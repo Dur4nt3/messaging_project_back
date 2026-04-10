@@ -6,6 +6,7 @@ import {
 } from '../utilities/misc/serverResponses';
 
 import { getChatMessages } from '../../db/queries/message/messageQueries';
+import formatAllMessagesResponse from '../utilities/formatters/formatAllMessagesResponse';
 
 export default async function controllerGetAllChatMessages(
     req: Request,
@@ -22,13 +23,30 @@ export default async function controllerGetAllChatMessages(
         return error400(res, 'Invalid request URL!');
     }
 
-    const messages = await getChatMessages(Number(chatId), 50);
+    const { from } = req.query;
+    let messages;
+    if (!from) {
+        messages = await getChatMessages(Number(chatId), null, 50);
+    } else {
+        messages = await getChatMessages(Number(chatId), Number(from), 50);
+    }
+
     if (messages === null) {
+        return error500(res);
+    }
+
+    const formattedResponse = await formatAllMessagesResponse(
+        Number(chatId),
+        req.user.userId,
+        messages,
+    );
+    if (formattedResponse === null) {
         return error500(res);
     }
 
     return res.json({
         success: true,
-        data: messages,
+        name: formattedResponse.name,
+        messages: formattedResponse.messages,
     });
 }
