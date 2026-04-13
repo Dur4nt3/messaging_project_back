@@ -3,6 +3,8 @@ import type { FriendshipStatus } from '../../../generated/prisma/enums';
 import { prisma } from '../../../lib/prisma';
 import logError from '../../utilities/logError';
 
+// This query EXCLUDES ALL NON-HUMAN FRIENDS
+// This means you will not get bot friendships
 export async function getAllFriends(userId: number) {
     try {
         const friends = await prisma.friendship.findMany({
@@ -11,14 +13,34 @@ export async function getAllFriends(userId: number) {
                 OR: [
                     {
                         senderId: userId,
+                        sender: {
+                            type: {
+                                in: ['HUMAN'],
+                            },
+                        },
                         receiverId: {
                             not: userId,
+                        },
+                        receiver: {
+                            type: {
+                                in: ['HUMAN'],
+                            },
                         },
                     },
                     {
                         receiverId: userId,
+                        receiver: {
+                            type: {
+                                in: ['HUMAN'],
+                            },
+                        },
                         senderId: {
                             not: userId,
+                        },
+                        sender: {
+                            type: {
+                                in: ['HUMAN'],
+                            },
                         },
                     },
                 ],

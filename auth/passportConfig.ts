@@ -4,7 +4,7 @@ import passport from 'passport';
 import {
     Strategy as JwtStrategy,
     StrategyOptionsWithoutRequest,
-    ExtractJwt
+    ExtractJwt,
 } from 'passport-jwt';
 
 import { getPublicKey } from './getRSAKey';

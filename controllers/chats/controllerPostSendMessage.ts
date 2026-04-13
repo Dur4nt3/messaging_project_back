@@ -50,6 +50,15 @@ const controllerPostSendMessage: any[] = [
         const botChat = isChatABotChat(chat);
 
         if (botChat !== false) {
+            const messageSent = await insertMessage(
+                req.user?.userId,
+                message,
+                Number(chatId),
+            );
+            if (!messageSent) {
+                return error500(res);
+            }
+
             const botResult = await handleBotChat(
                 message,
                 botChat.username,

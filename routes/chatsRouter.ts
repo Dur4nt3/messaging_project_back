@@ -6,6 +6,7 @@ import controllerGetAllChats from '../controllers/chats/controllerGetAllChats';
 import controllerGetAllChatMessages from '../controllers/chats/controllerGetAllChatMessages';
 
 import controllerPostNewChat from '../controllers/chats/controllerPostNewChat';
+import controllerPostSendMessage from '../controllers/chats/controllerPostSendMessage';
 
 import controllerPatchChat from '../controllers/chats/controllerPatchChat';
 
@@ -30,6 +31,10 @@ chatsRouter.get(
 );
 
 // Send chat message
-chatsRouter.post('/chatId/messages', jwtAuthMiddleware)
+chatsRouter.post(
+    '/:chatId/messages',
+    jwtAuthMiddleware,
+    controllerPostSendMessage,
+);
 
 export default chatsRouter;

@@ -29,7 +29,7 @@ const QUICK_TALK_BOT_COMMANDS: QuickTalkCommand[] = [
             chatId: number,
             currentUserId: number,
         ) => {
-            const result = await showAllUsers(botUser, chatId);
+            const result = await showAllUsers(botUser, chatId, currentUserId);
             return result;
         },
     ),

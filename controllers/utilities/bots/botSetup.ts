@@ -4,7 +4,7 @@ import QuickTalkBot from './quickTalk/QuickTalkBot';
 
 const allBots = new BotManager();
 
-const quickTalkBotData = await getUserByUsername('quickTalk');
+const quickTalkBotData = await getUserByUsername('quicktalk');
 if (quickTalkBotData === null) {
     throw new Error('QuickTalk bot not found in the database!');
 }

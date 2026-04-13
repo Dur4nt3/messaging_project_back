@@ -26,11 +26,11 @@ function formatFriendData(
         const { receiver, sender, ...remainder } = friend;
 
         if (receiver.userId === currentUserId) {
-            const modifiedFriend = { user: receiver, ...remainder };
+            const modifiedFriend = { user: sender, ...remainder };
             modifiedList.push(modifiedFriend);
             continue;
         }
-        const modifiedFriend = { user: sender, ...remainder };
+        const modifiedFriend = { user: receiver, ...remainder };
         modifiedList.push(modifiedFriend);
         continue;
     }
@@ -40,13 +40,10 @@ function formatFriendData(
 
 function formatMessage(modifiedList: any[], messageModifier: string) {
     if (modifiedList.length === 0) {
-        return `Your friend list is empty!
-        You may use "/chatters" to view all users using QuickTalk.
-        Add some friends and get started!`;
+        return 'Your friend list is empty!\nYou may use "/chatters" to view all users using QuickTalk.\nAdd some friends and get started!';
     }
 
-    return `${messageModifier}:
-    ${modifiedList.map(
+    return `${messageModifier}\n${modifiedList.map(
         (friend) => `${friend.user.username} (${friend.user.name})\n`,
     )}`;
 }

@@ -38,7 +38,9 @@ export async function getAllUsersRedacted() {
     try {
         const users = await prisma.user.findMany({
             select: {
+                userId: true,
                 username: true,
+                type: true,
             },
         });
 
@@ -55,7 +57,7 @@ export async function isUserBot(userId: number) {
             where: {
                 userId,
                 type: 'BOT',
-            }
+            },
         });
 
         return user !== null;
