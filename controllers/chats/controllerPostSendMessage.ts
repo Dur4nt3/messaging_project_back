@@ -5,9 +5,10 @@ import validateMessage from '../utilities/validation/validateMessage';
 
 import { getChat } from '../../db/queries/chat/chatQueries';
 import { getChatMessagesSentByUser } from '../../db/queries/message/messageQueries';
-import { insertMessage } from '../../db/queries/message/messageMutations';
 import { getPrivateChatParticipants } from '../../db/queries/chatParticipant/chatParticipantQueries';
 import { areUsersFriends } from '../../db/queries/friendship/friendshipQueries';
+
+import sendChatMessage from '../utilities/misc/sendChatMessage';
 
 import isChatABotChat from '../utilities/bots/isChatABotChat';
 import allBots from '../utilities/bots/botSetup';
@@ -49,11 +50,15 @@ const controllerPostSendMessage: any[] = [
         }
         const botChat = isChatABotChat(chat);
 
+        // There's a nuance here to watch our for
+        // The lastMessageAt field is updated after inserting the user's message
+        // And not after inserting the bot's message
+        // If unwanted: use the updateLastMessageAt query after handleBotChat
         if (botChat !== false) {
-            const messageSent = await insertMessage(
-                req.user?.userId,
-                message,
+            const messageSent = await sendChatMessage(
+                req.user.userId,
                 Number(chatId),
+                message,
             );
             if (!messageSent) {
                 return error500(res);
@@ -66,15 +71,17 @@ const controllerPostSendMessage: any[] = [
                 req.user.userId,
                 allBots,
             );
+
             return return500OrBlank200(botResult, res);
         }
 
         if (chat.isGroup) {
-            const messageSent = await insertMessage(
-                req.user?.userId,
-                message,
+            const messageSent = await sendChatMessage(
+                req.user.userId,
                 Number(chatId),
+                message,
             );
+
             return return500OrBlank200(messageSent, res);
         }
 
@@ -93,10 +100,10 @@ const controllerPostSendMessage: any[] = [
         }
 
         if (friends === true) {
-            const messageSent = await insertMessage(
-                req.user?.userId,
-                message,
+            const messageSent = await sendChatMessage(
+                req.user.userId,
                 Number(chatId),
+                message,
             );
             return return500OrBlank200(messageSent, res);
         }
@@ -114,10 +121,11 @@ const controllerPostSendMessage: any[] = [
         if (messageCount.length > 1) {
             return error403(res);
         }
-        const messageSent = await insertMessage(
-            req.user?.userId,
-            message,
+
+        const messageSent = await sendChatMessage(
+            req.user.userId,
             Number(chatId),
+            message,
         );
         return return500OrBlank200(messageSent, res);
     },

@@ -15,3 +15,21 @@ export async function insertChat() {
         return null;
     }
 }
+
+export async function updateLastMessageAt(chatId: number) {
+    try {
+        await prisma.chat.update({
+            where: {
+                chatId,
+            },
+            data: {
+                lastMessageAt: new Date(),
+            },
+        });
+
+        return true;
+    } catch (error) {
+        logError('Error occurred when attempting to update chat', error);
+        return false;
+    }
+}

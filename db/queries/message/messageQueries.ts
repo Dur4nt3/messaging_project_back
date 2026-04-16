@@ -6,6 +6,7 @@ import type ChatMessage from '../../../types/ChatMessage';
 export async function getChatMessages(
     chatId: number,
     fromMessageId: number | null = null,
+    toMessageId: number | null = null,
     limit: number = 50,
 ): Promise<ChatMessage[] | null> {
     try {
@@ -13,11 +14,12 @@ export async function getChatMessages(
             where: {
                 chatId,
                 messageId: {
-                    gt: fromMessageId ? fromMessageId : 0,
+                    lt: toMessageId ?? undefined,
+                    gt: fromMessageId ?? 0,
                 },
             },
             orderBy: {
-                sentAt: 'asc',
+                sentAt: 'desc',
             },
             take: limit,
             include: {
@@ -35,7 +37,7 @@ export async function getChatMessages(
             },
         });
 
-        return messages;
+        return messages.reverse();
     } catch (error) {
         logError('Error occurred when attempting to get messages', error);
         return null;
@@ -88,5 +90,29 @@ export async function getUnreadCount(
     } catch (error) {
         logError('Error occurred when attempting to get unread count', error);
         return null;
+    }
+}
+
+export async function areThereAdditionalMessages(
+    chatId: number,
+    currentOldestMessageId: number,
+) {
+    try {
+        const additionalMessages = await prisma.message.findFirst({
+            where: {
+                chatId,
+                messageId: {
+                    lt: currentOldestMessageId,
+                },
+            },
+        });
+
+        return additionalMessages !== null
+    } catch (error) {
+        logError(
+            'Error occurred when attempting to determine message count',
+            error,
+        );
+        return false;
     }
 }

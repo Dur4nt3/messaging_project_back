@@ -58,3 +58,27 @@ export async function updateChatVisibility(
         return false;
     }
 }
+
+export async function updateLastReadAt(chatId: number, userId: number) {
+    try {
+        await prisma.chatParticipant.update({
+            where: {
+                chatId_userId: {
+                    chatId,
+                    userId,
+                },
+            },
+            data: {
+                lastReadAt: new Date(),
+            },
+        });
+
+        return true;
+    } catch (error) {
+        logError(
+            'Error occurred when attempting to update last read time',
+            error,
+        );
+        return false;
+    }
+}

@@ -5,7 +5,11 @@ import {
     error500,
 } from '../utilities/misc/serverResponses';
 
-import { getChatMessages } from '../../db/queries/message/messageQueries';
+import { areThereAdditionalMessages } from '../../db/queries/message/messageQueries';
+import { updateLastReadAt } from '../../db/queries/chatParticipant/chatParticipantMutations';
+
+import getStringQueryParams from '../utilities/misc/getStringQueryParams';
+import getMessagesBasedOnQuery from '../utilities/misc/getMessagesBasedOnQuery';
 import formatAllMessagesResponse from '../utilities/formatters/formatAllMessagesResponse';
 
 export default async function controllerGetAllChatMessages(
@@ -23,13 +27,17 @@ export default async function controllerGetAllChatMessages(
         return error400(res, 'Invalid request URL!');
     }
 
-    const { from } = req.query;
-    let messages;
-    if (!from) {
-        messages = await getChatMessages(Number(chatId), null, 50);
-    } else {
-        messages = await getChatMessages(Number(chatId), Number(from), 50);
-    }
+    const limit = 50;
+
+    const from = getStringQueryParams(req.query.from);
+    const to = getStringQueryParams(req.query.to);
+
+    const messages = await getMessagesBasedOnQuery(
+        from,
+        to,
+        Number(chatId),
+        limit,
+    );
 
     if (messages === null) {
         return error500(res);
@@ -44,9 +52,22 @@ export default async function controllerGetAllChatMessages(
         return error500(res);
     }
 
+    // Even if this doesn't succeed
+    // DO NOT prevent the user from seeing the messages
+    await updateLastReadAt(Number(chatId), req.user.userId);
+
+    let canFetchMore = false;
+    if (messages.length > 0) {
+        canFetchMore = await areThereAdditionalMessages(
+            Number(chatId),
+            messages[0].messageId,
+        );
+    }
+
     return res.json({
         success: true,
         name: formattedResponse.name,
         messages: formattedResponse.messages,
+        more: canFetchMore,
     });
 }
