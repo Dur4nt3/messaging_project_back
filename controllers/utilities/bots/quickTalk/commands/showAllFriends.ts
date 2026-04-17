@@ -7,7 +7,8 @@ import {
     getSentFriendships,
     getReceivedFriendships,
 } from '../../../../../db/queries/friendship/friendshipQueries';
-import { insertMessage } from '../../../../../db/queries/message/messageMutations';
+
+import sendChatMessage from '../../../misc/sendChatMessage';
 
 function formatFriendData(
     friendList: any[],
@@ -64,7 +65,7 @@ async function finalizeAndSendMessage(
 
     const message = formatMessage(modifiedList, messageModifier);
 
-    const messageSent = await insertMessage(botUserId, message, chatId);
+    const messageSent = await sendChatMessage(botUserId, chatId, message);
 
     return messageSent;
 }

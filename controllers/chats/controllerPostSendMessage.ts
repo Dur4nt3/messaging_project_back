@@ -8,6 +8,8 @@ import { getChatMessagesSentByUser } from '../../db/queries/message/messageQueri
 import { getPrivateChatParticipants } from '../../db/queries/chatParticipant/chatParticipantQueries';
 import { areUsersFriends } from '../../db/queries/friendship/friendshipQueries';
 
+import { updateLastReadAt } from '../../db/queries/chatParticipant/chatParticipantMutations';
+
 import sendChatMessage from '../utilities/misc/sendChatMessage';
 
 import isChatABotChat from '../utilities/bots/isChatABotChat';
@@ -50,10 +52,6 @@ const controllerPostSendMessage: any[] = [
         }
         const botChat = isChatABotChat(chat);
 
-        // There's a nuance here to watch our for
-        // The lastMessageAt field is updated after inserting the user's message
-        // And not after inserting the bot's message
-        // If unwanted: use the updateLastMessageAt query after handleBotChat
         if (botChat !== false) {
             const messageSent = await sendChatMessage(
                 req.user.userId,
@@ -72,7 +70,14 @@ const controllerPostSendMessage: any[] = [
                 allBots,
             );
 
-            return return500OrBlank200(botResult, res);
+            // Because the response is rather instant
+            // Update lastReadAt to ensure the bot's message doesn't count as "unread"
+            const updatedLastRead = await updateLastReadAt(
+                Number(chatId),
+                req.user.userId,
+            );
+
+            return return500OrBlank200(botResult && updatedLastRead, res);
         }
 
         if (chat.isGroup) {

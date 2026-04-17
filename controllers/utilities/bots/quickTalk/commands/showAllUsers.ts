@@ -1,6 +1,7 @@
 import type { User } from '../../../../../generated/prisma/client';
 import { getAllUsersRedacted } from '../../../../../db/queries/user/userQueries';
-import { insertMessage } from '../../../../../db/queries/message/messageMutations';
+
+import sendChatMessage from '../../../misc/sendChatMessage';
 
 function formatMessage(userList: any[], currentUserId: number) {
     if (userList.length === 0) {
@@ -26,10 +27,10 @@ export default async function showAllUsers(
     const users = await getAllUsersRedacted();
     const message = formatMessage(users, currentUserId);
 
-    const messageInserted = await insertMessage(
+    const messageInserted = await sendChatMessage(
         botUser.userId,
-        message,
         chatId,
+        message,
     );
     return messageInserted;
 }

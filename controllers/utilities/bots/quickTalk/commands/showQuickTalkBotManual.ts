@@ -1,6 +1,6 @@
 import type { User } from '../../../../../generated/prisma/client';
 
-import { insertMessage } from '../../../../../db/queries/message/messageMutations';
+import sendChatMessage from '../../../misc/sendChatMessage';
 
 export default async function showQuickTalkBotManual(
     botUser: User,
@@ -32,6 +32,6 @@ export default async function showQuickTalkBotManual(
 
 Use these commands at any time to quickly navigate and stay connected.`;
 
-    const messageSent = await insertMessage(botUser.userId, manual, chatId);
+    const messageSent = await sendChatMessage(botUser.userId, chatId, manual);
     return messageSent;
 }
