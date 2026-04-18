@@ -16,7 +16,6 @@ export default function issueJWT(user: User) {
 
     const payload = {
         sub: userId,
-        iat: Date.now(),
     };
 
     const signedToken = jsonwebtoken.sign(payload, PRIVATE_KEY, {

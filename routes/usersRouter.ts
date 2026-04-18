@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import jwtAuthMiddleware from '../auth/jwtAuthMiddleware';
+import checkBlacklist from '../auth/checkBlacklist';
 
 import controllerGetOwnInfo from '../controllers/users/controllerGetOwnInfo';
 
@@ -14,7 +15,7 @@ import controllerDeleteFriendship from '../controllers/users/controllerDeleteFri
 const usersRouter = Router();
 
 // Get own user info
-usersRouter.get('/me', jwtAuthMiddleware, controllerGetOwnInfo);
+usersRouter.get('/me', jwtAuthMiddleware, checkBlacklist, controllerGetOwnInfo);
 
 // Signup
 usersRouter.post('/', controllerPostSignup);
@@ -23,6 +24,7 @@ usersRouter.post('/', controllerPostSignup);
 usersRouter.post(
     '/friendships/:userId',
     jwtAuthMiddleware,
+    checkBlacklist,
     controllerPostFriendRequest,
 );
 
@@ -30,6 +32,7 @@ usersRouter.post(
 usersRouter.patch(
     '/friendships/:userId',
     jwtAuthMiddleware,
+    checkBlacklist,
     controllerPatchFriendship,
 );
 
@@ -37,6 +40,7 @@ usersRouter.patch(
 usersRouter.delete(
     '/friendships/:userId',
     jwtAuthMiddleware,
+    checkBlacklist,
     controllerDeleteFriendship,
 );
 

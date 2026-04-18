@@ -107,6 +107,6 @@ model ChatParticipant {
 model TokenBlacklist {
   tokenBlacklistId Int @id @default(autoincrement())
 
-  token     String
+  token     String @unique
   expiresAt DateTime
 }
