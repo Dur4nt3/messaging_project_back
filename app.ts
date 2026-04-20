@@ -18,7 +18,7 @@ if (process.env.APP_CLIENT === undefined) {
 app.use(
     cors({
         origin: [process.env.APP_CLIENT],
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
         credentials: true,
         optionsSuccessStatus: 200,
     }),

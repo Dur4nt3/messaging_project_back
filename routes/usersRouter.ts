@@ -4,6 +4,7 @@ import jwtAuthMiddleware from '../auth/jwtAuthMiddleware';
 import checkBlacklist from '../auth/checkBlacklist';
 
 import controllerGetOwnInfo from '../controllers/users/controllerGetOwnInfo';
+import controllerGetFriendships from '../controllers/users/controllerGetFriendships';
 
 import controllerPostSignup from '../controllers/users/controllerPostSignup';
 import controllerPostFriendRequest from '../controllers/users/controllerPostFriendRequest';
@@ -19,6 +20,14 @@ usersRouter.get('/me', jwtAuthMiddleware, checkBlacklist, controllerGetOwnInfo);
 
 // Signup
 usersRouter.post('/', controllerPostSignup);
+
+// Get friendship data
+usersRouter.get(
+    '/friendships',
+    jwtAuthMiddleware,
+    checkBlacklist,
+    controllerGetFriendships,
+);
 
 // Send friend request
 usersRouter.post(

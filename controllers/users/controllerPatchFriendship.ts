@@ -45,6 +45,11 @@ const controllerPatchFriendship: any[] = [
 
         const { status } = matchedData(req);
 
+        // You cannot accept a friendship request YOU SENT
+        if (friendship.senderId === req.user.userId && status === 'ACCEPTED') {
+            return error500(res);
+        }
+
         const updated = await updateFriendship(friendship.friendshipId, status);
         return return500OrBlank200(updated, res);
     },

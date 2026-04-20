@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 
 import { isTokenBlacklisted } from '../db/queries/tokenBlacklist/tokenBlacklistQueries';
 
-import { error401, error403 } from '../controllers/utilities/misc/serverResponses';
+import { error401 } from '../controllers/utilities/misc/serverResponses';
 
 export default async function checkBlacklist(
     req: Request,
@@ -21,7 +21,7 @@ export default async function checkBlacklist(
     const blacklisted = await isTokenBlacklisted(token);
 
     if (blacklisted) {
-        return error403(res);
+        return error401(res);
     }
 
     next();

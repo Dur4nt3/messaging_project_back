@@ -23,7 +23,11 @@ export default async function controllerPostFriendRequest(
     }
 
     const { userId } = req.params;
-    if (!userId || Number.isNaN(Number(userId))) {
+    if (
+        !userId ||
+        Number.isNaN(Number(userId)) ||
+        Number(userId) === req.user.userId
+    ) {
         return error400(res, 'Invalid request URL!');
     }
 
@@ -32,6 +36,9 @@ export default async function controllerPostFriendRequest(
         return error500(res);
     }
 
+    // This takes care of all scenarios
+    // If a friendship is denied/pending/accepted
+    // You cannot send another request
     if (friendship !== null) {
         return error403(res);
     }

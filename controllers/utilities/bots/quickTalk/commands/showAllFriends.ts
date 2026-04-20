@@ -3,7 +3,7 @@ import type {
     User,
 } from '../../../../../generated/prisma/client';
 import {
-    getAllFriends,
+    getAllFriendships,
     getSentFriendships,
     getReceivedFriendships,
 } from '../../../../../db/queries/friendship/friendshipQueries';
@@ -101,7 +101,7 @@ export default async function showAllFriends(
             ? `Received friend requests that are ${rawStatus}:`
             : 'received friend requests:';
     } else {
-        friendList = await getAllFriends(currentUserId);
+        friendList = await getAllFriendships(currentUserId, true, 'ACCEPTED');
         friendProperty = null;
         messageModifier = 'You currently have the following users added:';
     }

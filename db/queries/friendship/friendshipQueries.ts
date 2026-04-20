@@ -1,59 +1,113 @@
 import type { FriendshipStatus } from '../../../generated/prisma/enums';
+import { UserWhereInput } from '../../../generated/prisma/models';
 
 import { prisma } from '../../../lib/prisma';
 import logError from '../../utilities/logError';
 
-// This query EXCLUDES ALL NON-HUMAN FRIENDS
-// This means you will not get bot friendships
-export async function getAllFriends(userId: number) {
+export async function getAllFriendships(
+    userId: number,
+    onlyHumans: boolean = true,
+    status: FriendshipStatus = 'ACCEPTED',
+) {
     try {
+        const humanFilter: UserWhereInput | undefined = onlyHumans
+            ? { type: { in: ['HUMAN'] } }
+            : undefined;
+
         const friends = await prisma.friendship.findMany({
             where: {
-                friendshipStatus: 'ACCEPTED',
+                friendshipStatus: status,
                 OR: [
                     {
                         senderId: userId,
-                        sender: {
-                            type: {
-                                in: ['HUMAN'],
-                            },
-                        },
                         receiverId: {
                             not: userId,
                         },
-                        receiver: {
-                            type: {
-                                in: ['HUMAN'],
-                            },
-                        },
+                        receiver: humanFilter,
                     },
                     {
                         receiverId: userId,
-                        receiver: {
-                            type: {
-                                in: ['HUMAN'],
-                            },
-                        },
                         senderId: {
                             not: userId,
                         },
-                        sender: {
-                            type: {
-                                in: ['HUMAN'],
-                            },
-                        },
+                        sender: humanFilter,
                     },
                 ],
             },
             include: {
-                sender: true,
-                receiver: true,
+                sender: {
+                    select: {
+                        username: true,
+                        name: true,
+                    },
+                },
+                receiver: {
+                    select: {
+                        username: true,
+                        name: true,
+                    },
+                },
             },
         });
 
         return friends;
     } catch (error) {
         logError('Error occurred when attempting to get all friends', error);
+        return [];
+    }
+}
+
+export async function getFriendshipsFiltered(
+    userId: number,
+    startsWith: string,
+) {
+    try {
+        const friendships = await prisma.friendship.findMany({
+            where: {
+                OR: [
+                    {
+                        sender: {
+                            username: {
+                                startsWith,
+                            },
+                        },
+                        senderId: {
+                            not: userId,
+                        },
+                        receiverId: userId,
+                    },
+                    {
+                        receiver: {
+                            username: {
+                                startsWith,
+                            },
+                        },
+                        receiverId: {
+                            not: userId,
+                        },
+                        senderId: userId,
+                    },
+                ],
+            },
+            include: {
+                sender: {
+                    select: {
+                        username: true,
+                        name: true,
+                    },
+                },
+                receiver: {
+                    select: {
+                        username: true,
+                        name: true,
+                    },
+                },
+            },
+        });
+
+        return friendships;
+    } catch (error) {
+        logError('Error occurred when attempting to get friendships', error);
         return [];
     }
 }

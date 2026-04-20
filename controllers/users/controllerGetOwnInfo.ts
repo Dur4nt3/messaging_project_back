@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+
 import { error401 } from '../utilities/misc/serverResponses';
 
 export default function controllerGetOwnInfo(req: Request, res: Response) {
