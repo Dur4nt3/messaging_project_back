@@ -4,7 +4,6 @@ import { validationResult, matchedData } from 'express-validator';
 import validateMessage from '../utilities/validation/validateMessage';
 
 import { getChat } from '../../db/queries/chat/chatQueries';
-import { getChatMessagesSentByUser } from '../../db/queries/message/messageQueries';
 import { getPrivateChatParticipants } from '../../db/queries/chatParticipant/chatParticipantQueries';
 import { areUsersFriends } from '../../db/queries/friendship/friendshipQueries';
 
@@ -104,26 +103,7 @@ const controllerPostSendMessage: any[] = [
             return error500(res);
         }
 
-        if (friends === true) {
-            const messageSent = await sendChatMessage(
-                req.user.userId,
-                Number(chatId),
-                message,
-            );
-            return return500OrBlank200(messageSent, res);
-        }
-
-        const messageCount = await getChatMessagesSentByUser(
-            Number(chatId),
-            req.user.userId,
-            2,
-        );
-
-        if (messageCount === null) {
-            return error500(res);
-        }
-
-        if (messageCount.length > 1) {
+        if (!friends) {
             return error403(res);
         }
 
