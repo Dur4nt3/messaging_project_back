@@ -4,9 +4,12 @@ import {
     error500,
     error400,
 } from '../utilities/misc/serverResponses';
-import { insertChat } from '../../db/queries/chat/chatMutations';
 
-export default async function controllerPostNewChat(
+import { findPrivateChat } from '../../db/queries/chat/chatQueries';
+import { insertChat } from '../../db/queries/chat/chatMutations';
+import { insertChatParticipants } from '../../db/queries/chatParticipant/chatParticipantMutations';
+
+export default async function controllerPostNewPrivateChat(
     req: Request,
     res: Response,
 ) {
@@ -22,9 +25,26 @@ export default async function controllerPostNewChat(
         return error400(res, 'Invalid request URL!');
     }
 
+    const chatAlreadyExists = await findPrivateChat(
+        req.user.userId,
+        Number(userId),
+    );
+    if (chatAlreadyExists !== null) {
+        return error400(res, 'Private chat already exists!');
+    }
+
     const chat = await insertChat();
 
     if (chat === null) {
+        return error500(res);
+    }
+
+    const participantsAdded = await insertChatParticipants(
+        [req.user.userId, Number(userId)],
+        chat.chatId,
+    );
+
+    if (!participantsAdded) {
         return error500(res);
     }
 

@@ -85,3 +85,33 @@ export async function getPrivateChatParticipants(chatId: number) {
         return null;
     }
 }
+
+export async function getOtherPrivateChatParticipant(
+    chatId: number,
+    userId: number,
+) {
+    try {
+        const participant = await prisma.chatParticipant.findFirst({
+            where: {
+                chatId,
+                chat: {
+                    isGroup: false,
+                },
+                userId: {
+                    not: userId,
+                },
+            },
+            include: {
+                user: true,
+            },
+        });
+
+        return participant;
+    } catch (error) {
+        logError(
+            'Error occurred when attempting to get private chat participants',
+            error,
+        );
+        return null;
+    }
+}

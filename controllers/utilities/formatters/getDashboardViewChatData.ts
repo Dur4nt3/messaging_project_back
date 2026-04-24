@@ -37,8 +37,10 @@ export default async function getDashboardViewChatData(userId: number) {
                     ...chatFields,
                     chatParticipant: recipient,
                     messages: {
-                        lastContent: lastMessage.content,
-                        sent: lastMessage.senderId === userId,
+                        lastContent: lastMessage?.content,
+                        sent: !lastMessage
+                            ? false
+                            : lastMessage.senderId === userId,
                         unread: unreadCount,
                     },
                 };

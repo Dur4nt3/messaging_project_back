@@ -50,7 +50,7 @@ export async function findPrivateChat(
         return chat;
     } catch (error) {
         logError('Error occurred when attempting to find private chat', error);
-        return null;
+        return false;
     }
 }
 

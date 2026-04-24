@@ -34,7 +34,7 @@ export async function insertChatParticipants(
 export async function updateChatVisibility(
     chatId: number,
     userId: number,
-    currentVisibility: boolean,
+    currentlyVisible: boolean,
 ) {
     try {
         await prisma.chatParticipant.update({
@@ -45,7 +45,7 @@ export async function updateChatVisibility(
                 },
             },
             data: {
-                visible: !currentVisibility,
+                visible: !currentlyVisible,
             },
         });
 

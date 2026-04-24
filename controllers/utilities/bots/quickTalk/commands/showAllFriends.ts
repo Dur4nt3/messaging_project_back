@@ -44,9 +44,9 @@ function formatMessage(modifiedList: any[], messageModifier: string) {
         return 'Your friend list is empty!\nYou may use "/chatters" to view all users using QuickTalk.\nAdd some friends and get started!';
     }
 
-    return `${messageModifier}\n${modifiedList.map(
-        (friend) => `${friend.user.username} (${friend.user.name})\n`,
-    )}`;
+    return `${messageModifier}\n${modifiedList
+        .map((friend) => `${friend.user.username} (${friend.user.name})`)
+        .join('\n')}`;
 }
 
 async function finalizeAndSendMessage(

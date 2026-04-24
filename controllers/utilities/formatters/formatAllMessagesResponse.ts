@@ -1,5 +1,8 @@
 import type ChatMessage from '../../../types/ChatMessage';
-import { getChatName } from '../../../db/queries/chatParticipant/chatParticipantQueries';
+import {
+    getChatName,
+    getOtherPrivateChatParticipant,
+} from '../../../db/queries/chatParticipant/chatParticipantQueries';
 import { getChat } from '../../../db/queries/chat/chatQueries';
 
 export default async function formatAllMessagesResponse(
@@ -14,9 +17,23 @@ export default async function formatAllMessagesResponse(
     const { isGroup } = chat;
     const chatName = await getChatName(chatId, isGroup, currentUserId);
 
+    let id;
+    if (isGroup) {
+        id = chat.chatId;
+    } else {
+        const otherUser = await getOtherPrivateChatParticipant(
+            chat.chatId,
+            currentUserId,
+        );
+        if (otherUser === null) {
+            return null;
+        }
+        id = otherUser.user.userId;
+    }
+
     const formattedMessages = messages.map((message) => {
         const { sender, ...reminder } = { ...message };
-        
+
         return {
             name: sender.name,
             sent: reminder.senderId === currentUserId,
@@ -25,6 +42,7 @@ export default async function formatAllMessagesResponse(
     });
 
     return {
+        id,
         name: chatName,
         messages: formattedMessages,
     };
