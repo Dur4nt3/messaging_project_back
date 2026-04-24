@@ -17,9 +17,9 @@ export default async function formatAllMessagesResponse(
     const { isGroup } = chat;
     const chatName = await getChatName(chatId, isGroup, currentUserId);
 
-    let id;
+    let userId;
     if (isGroup) {
-        id = chat.chatId;
+        userId = chat.chatId;
     } else {
         const otherUser = await getOtherPrivateChatParticipant(
             chat.chatId,
@@ -28,7 +28,7 @@ export default async function formatAllMessagesResponse(
         if (otherUser === null) {
             return null;
         }
-        id = otherUser.user.userId;
+        ({ userId } = otherUser.user);
     }
 
     const formattedMessages = messages.map((message) => {
@@ -42,7 +42,8 @@ export default async function formatAllMessagesResponse(
     });
 
     return {
-        id,
+        userId,
+        chatId: chat.chatId,
         name: chatName,
         messages: formattedMessages,
     };

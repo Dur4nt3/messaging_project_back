@@ -78,7 +78,8 @@ export default async function controllerGetAllChatMessages(
 
     return res.json({
         success: true,
-        id: formattedResponse.id,
+        userId: formattedResponse.userId,
+        chatId: formattedResponse.chatId,
         name: formattedResponse.name,
         messages: formattedResponse.messages,
         more: canFetchMore,
