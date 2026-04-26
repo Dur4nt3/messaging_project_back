@@ -64,6 +64,9 @@ export async function getLatestActiveChats(userId: number) {
                         visible: true,
                     },
                 },
+                messages: {
+                    some: {},
+                },
             },
             orderBy: {
                 lastMessageAt: 'desc',

@@ -26,11 +26,12 @@ function formatFriendData(
 
         const { receiver, sender, ...remainder } = friend;
 
-        if (receiver.userId === currentUserId) {
+        if (remainder.receiverId === currentUserId) {
             const modifiedFriend = { user: sender, ...remainder };
             modifiedList.push(modifiedFriend);
             continue;
         }
+
         const modifiedFriend = { user: receiver, ...remainder };
         modifiedList.push(modifiedFriend);
         continue;

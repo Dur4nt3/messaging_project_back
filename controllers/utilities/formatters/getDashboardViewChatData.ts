@@ -8,7 +8,7 @@ export default async function getDashboardViewChatData(userId: number) {
         if (activeChats === null) {
             return null;
         }
-
+        
         const dashboardViewData = await Promise.all(
             activeChats.map(async (chat) => {
                 const { messages, chatParticipants, ...chatFields } = chat;
