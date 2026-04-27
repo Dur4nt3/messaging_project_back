@@ -6,6 +6,8 @@ import { matchedData, validationResult } from 'express-validator';
 import { getFriendship } from '../../db/queries/friendship/friendshipQueries';
 import { updateFriendship } from '../../db/queries/friendship/friendshipMutations';
 
+import { canPatchFriendship } from '../utilities/authorization/friendshipAuthorization';
+
 import {
     error400ExpressValidator,
     error401,
@@ -45,9 +47,8 @@ const controllerPatchFriendship: any[] = [
 
         const { status } = matchedData(req);
 
-        // You cannot accept a friendship request YOU SENT
-        if (friendship.senderId === req.user.userId && status === 'ACCEPTED') {
-            return error500(res);
+        if (!canPatchFriendship(req.user.userId, friendship, status)) {
+            return error403(res);
         }
 
         const updated = await updateFriendship(friendship.friendshipId, status);
