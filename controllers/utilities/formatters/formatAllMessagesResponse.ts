@@ -4,6 +4,7 @@ import {
     getOtherPrivateChatParticipant,
 } from '../../../db/queries/chatParticipant/chatParticipantQueries';
 import { getChat } from '../../../db/queries/chat/chatQueries';
+import { areUsersFriends } from '../../../db/queries/friendship/friendshipQueries';
 
 export default async function formatAllMessagesResponse(
     chatId: number,
@@ -18,8 +19,11 @@ export default async function formatAllMessagesResponse(
     const chatName = await getChatName(chatId, isGroup, currentUserId);
 
     let userId;
+    let friends;
+
     if (isGroup) {
         userId = chat.chatId;
+        friends = true;
     } else {
         const otherUser = await getOtherPrivateChatParticipant(
             chat.chatId,
@@ -29,6 +33,7 @@ export default async function formatAllMessagesResponse(
             return null;
         }
         ({ userId } = otherUser.user);
+        friends = await areUsersFriends(currentUserId, userId);
     }
 
     const formattedMessages = messages.map((message) => {
@@ -46,5 +51,6 @@ export default async function formatAllMessagesResponse(
         chatId: chat.chatId,
         name: chatName,
         messages: formattedMessages,
+        friends,
     };
 }

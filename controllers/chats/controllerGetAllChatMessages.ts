@@ -83,5 +83,6 @@ export default async function controllerGetAllChatMessages(
         name: formattedResponse.name,
         messages: formattedResponse.messages,
         more: canFetchMore,
+        friends: formattedResponse.friends,
     });
 }
