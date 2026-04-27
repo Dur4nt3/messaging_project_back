@@ -1,6 +1,9 @@
 import { FriendshipStatus } from '../../../generated/prisma/enums';
 
-import { getAllFriendships } from '../../../db/queries/friendship/friendshipQueries';
+import {
+    getAllFriendships,
+    getDenyList,
+} from '../../../db/queries/friendship/friendshipQueries';
 import { filterUsersByUsername } from '../../../db/queries/user/userQueries';
 
 import formatAllFriendshipsResponse from '../formatters/formatAllFriendshipsResponse';
@@ -24,11 +27,17 @@ export default async function getFriendshipsBasedOnQuery(
         const validStatus = Object.keys(FriendshipStatus);
         const formattedStatus = String(status).toUpperCase();
         if (validStatus.includes(formattedStatus)) {
-            const friendships = await getAllFriendships(
-                userId,
-                false,
-                formattedStatus as FriendshipStatus,
-            );
+            let friendships;
+            if (formattedStatus === 'DENIED') {
+                friendships = await getDenyList(userId);
+            } else {
+                friendships = await getAllFriendships(
+                    userId,
+                    false,
+                    formattedStatus as FriendshipStatus,
+                );
+            }
+
             const formattedFriendships = formatAllFriendshipsResponse(
                 userId,
                 friendships,

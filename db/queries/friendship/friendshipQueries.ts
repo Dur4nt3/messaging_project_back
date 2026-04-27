@@ -1,8 +1,26 @@
 import type { FriendshipStatus } from '../../../generated/prisma/enums';
-import { UserWhereInput } from '../../../generated/prisma/models';
+import {
+    UserWhereInput,
+    FriendshipInclude,
+} from '../../../generated/prisma/models';
 
 import { prisma } from '../../../lib/prisma';
 import logError from '../../utilities/logError';
+
+const includeFriendsInfo: FriendshipInclude = {
+    sender: {
+        select: {
+            username: true,
+            name: true,
+        },
+    },
+    receiver: {
+        select: {
+            username: true,
+            name: true,
+        },
+    },
+};
 
 export async function getAllFriendships(
     userId: number,
@@ -34,20 +52,7 @@ export async function getAllFriendships(
                     },
                 ],
             },
-            include: {
-                sender: {
-                    select: {
-                        username: true,
-                        name: true,
-                    },
-                },
-                receiver: {
-                    select: {
-                        username: true,
-                        name: true,
-                    },
-                },
-            },
+            include: includeFriendsInfo,
         });
 
         return friends;
@@ -89,20 +94,7 @@ export async function getFriendshipsFiltered(
                     },
                 ],
             },
-            include: {
-                sender: {
-                    select: {
-                        username: true,
-                        name: true,
-                    },
-                },
-                receiver: {
-                    select: {
-                        username: true,
-                        name: true,
-                    },
-                },
-            },
+            include: includeFriendsInfo,
         });
 
         return friendships;
@@ -186,27 +178,35 @@ export async function getReceivedFriendships(
     }
 }
 
-export async function areUsersFriends(user1Id: number, user2Id: number) {
+export async function getDenyList(userId: number) {
     try {
-        const friends = await prisma.friendship.findFirst({
+        const friends = await prisma.friendship.findMany({
             where: {
-                friendshipStatus: 'ACCEPTED',
-                OR: [
-                    {
-                        senderId: user1Id,
-                        receiverId: user2Id,
-                    },
-                    {
-                        senderId: user2Id,
-                        receiverId: user1Id,
-                    },
-                ],
+                receiverId: userId,
+                friendshipStatus: 'DENIED',
             },
+            include: includeFriendsInfo,
         });
 
-        return friends !== null;
+        return friends;
     } catch (error) {
-        logError('Error occurred when attempting to check friendship', error);
+        logError(
+            'Error occurred when attempting to get all denied friendships',
+            error,
+        );
+        return [];
+    }
+}
+
+export async function areUsersFriends(user1Id: number, user2Id: number) {
+    const friendship = await getFriendship(user1Id, user2Id);
+    if (friendship === false) {
         return null;
     }
+
+    if (friendship === null || friendship.friendshipStatus !== 'ACCEPTED') {
+        return false;
+    }
+
+    return true;
 }
