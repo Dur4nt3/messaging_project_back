@@ -40,7 +40,6 @@ const QUICK_TALK_BOT_COMMANDS: QuickTalkCommand[] = [
             '/friends',
 
             '/friends:sent',
-            '/friends:sent:denied',
             '/friends:sent:pending',
             '/friends:sent:accepted',
 
