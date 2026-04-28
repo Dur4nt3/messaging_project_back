@@ -1,4 +1,7 @@
 import type { User } from '../generated/prisma/client';
+
+import { randomUUID } from 'crypto';
+
 import jsonwebtoken from 'jsonwebtoken';
 
 import { getPrivateKey } from './getRSAKey';
@@ -16,6 +19,7 @@ export default function issueJWT(user: User) {
 
     const payload = {
         sub: userId,
+        jti: randomUUID(),
     };
 
     const signedToken = jsonwebtoken.sign(payload, PRIVATE_KEY, {
