@@ -39,7 +39,6 @@ export default async function controllerPostNewPrivateChat(
     if (!friends) {
         return error400(
             res,
-            // eslint-disable-next-line quotes
             "Cannot create a chat with a user who's not your friend!",
         );
     }

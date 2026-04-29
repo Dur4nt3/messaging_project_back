@@ -47,8 +47,9 @@ const controllerPostSendMessage: any[] = [
 
         const chat = await getChat(Number(chatId));
         if (chat === null) {
-            return;
+            return error400(res, "Chat doesn't exist!");
         }
+
         const botChat = isChatABotChat(chat);
 
         if (botChat !== false) {
