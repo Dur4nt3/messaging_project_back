@@ -12,7 +12,7 @@ import { updateLastReadAt } from '../../db/queries/chatParticipant/chatParticipa
 import sendChatMessage from '../utilities/misc/sendChatMessage';
 
 import isChatABotChat from '../utilities/bots/isChatABotChat';
-import allBots from '../utilities/bots/botSetup';
+import allBots, { initBots } from '../utilities/bots/botSetup';
 import handleBotChat from '../utilities/bots/handleBotChat';
 
 import {
@@ -52,6 +52,8 @@ const controllerPostSendMessage: any[] = [
         const botChat = isChatABotChat(chat);
 
         if (botChat !== false) {
+            await initBots();
+
             const messageSent = await sendChatMessage(
                 req.user.userId,
                 Number(chatId),
