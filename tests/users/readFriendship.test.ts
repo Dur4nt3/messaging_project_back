@@ -17,12 +17,6 @@ import truncateAllTables from '../utilities/truncateAll';
 
 import { prisma } from '../../lib/prisma';
 
-beforeAll(async () => {
-    console.log('###################### SEED START ######################\n');
-    await seedAll();
-    console.log('###################### SEED END ######################\n');
-});
-
 const app = express();
 
 app.use(express.json());
@@ -30,10 +24,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 
-// Note (28/04/2026): It is currently impossible
-// for the route to return an error outside auth
-// Therefore, this will be the only test case
-test('Able to fetch friendships', async () => {
+beforeAll(async () => {
+    console.log('###################### TEST SETUP START ######################\n');
+    await seedAll();
+
     const usersCreated = await createMultipleUsers(
         request,
         app,
@@ -43,7 +37,15 @@ test('Able to fetch friendships', async () => {
         'test4',
     );
     expect(usersCreated).toBeTruthy();
+    console.log('Test users created');
+    
+    console.log('###################### TEST SETUP END ######################\n');
+});
 
+// Note (28/04/2026): It is currently impossible
+// for the route to return an error outside auth
+// Therefore, this will be the only test case
+test('Able to fetch friendships', async () => {
     const [
         [user1Data, token1],
         [user2Data],

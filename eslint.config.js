@@ -52,7 +52,7 @@ export default defineConfig([
             'prefer-object-spread': 'warn',
             'no-array-constructor': 'error',
             'prefer-destructuring': 'warn',
-            quotes: ['warn', 'single'],
+            quotes: ['warn', 'single', { avoidEscape: true }],
             'prefer-template': 'warn',
 
             // "eval()" can open an application to vulnerabilities

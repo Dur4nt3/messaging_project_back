@@ -21,12 +21,6 @@ import truncateAllTables from '../utilities/truncateAll';
 
 import { prisma } from '../../lib/prisma';
 
-beforeAll(async () => {
-    console.log('###################### SEED START ######################\n');
-    await seedAll();
-    console.log('###################### SEED END ######################\n');
-});
-
 const app = express();
 
 app.use(express.json());
@@ -34,7 +28,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 
-test('Not able to delete friendships with invalid input', async () => {
+beforeAll(async () => {
+    console.log(
+        '###################### TEST SETUP START ######################\n',
+    );
+    await seedAll();
+
     const usersCreated = await createMultipleUsers(
         request,
         app,
@@ -42,7 +41,14 @@ test('Not able to delete friendships with invalid input', async () => {
         'test2',
     );
     expect(usersCreated).toBeTruthy();
+    console.log('Test users created');
 
+    console.log(
+        '###################### TEST SETUP END ######################\n',
+    );
+});
+
+test('Not able to delete friendships with invalid input', async () => {
     const user2Data = await getUserByUsername('test2');
     expect(user2Data).not.toBeNull();
 
@@ -81,13 +87,12 @@ test('Not able to delete friendships with invalid input', async () => {
 });
 
 test('Able to delete friendship', async () => {
-    const [[user1Data, token1], [user2Data, token2]] =
-        await getUsersAndTokens(
-            request,
-            app,
-            ['test1', 'qw12qw34'],
-            ['test2', 'qw12qw34'],
-        );
+    const [[user1Data, token1], [user2Data, token2]] = await getUsersAndTokens(
+        request,
+        app,
+        ['test1', 'qw12qw34'],
+        ['test2', 'qw12qw34'],
+    );
 
     // test1 -> test2
     const response1 = await request(app)

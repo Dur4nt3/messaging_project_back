@@ -14,17 +14,13 @@ import login from '../utilities/login';
 
 import createMultipleUsers from '../utilities/createMultipleUsers';
 
+import getUsersAndTokens from '../utilities/getUsersAndTokens';
+
 import { getUserByUsername } from '../../db/queries/user/userQueries';
 
 import truncateAllTables from '../utilities/truncateAll';
 
 import { prisma } from '../../lib/prisma';
-
-beforeAll(async () => {
-    console.log('###################### SEED START ######################\n');
-    await seedAll();
-    console.log('###################### SEED END ######################\n');
-});
 
 const app = express();
 
@@ -33,7 +29,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 
-test('Not able to send invalid friend requests', async () => {
+beforeAll(async () => {
+    console.log(
+        '###################### TEST SETUP START ######################\n',
+    );
+    await seedAll();
+
     const usersCreated = await createMultipleUsers(
         request,
         app,
@@ -41,16 +42,22 @@ test('Not able to send invalid friend requests', async () => {
         'test2',
     );
     expect(usersCreated).toBeTruthy();
+    console.log('Test users created');
 
-    const user2Data = await getUserByUsername('test2');
-    expect(user2Data).not.toBeNull();
+    console.log(
+        '###################### TEST SETUP END ######################\n',
+    );
+});
 
-    const token = await login(request, app, 'test1', 'qw12qw34');
-    expect(token).not.toBeNull();
+test('Not able to send invalid friend requests', async () => {
+    const [[user1Data, token1]] = await getUsersAndTokens(request, app, [
+        'test1',
+        'qw12qw34',
+    ]);
 
     const invalidUserIdFormat = await request(app)
         .post('/users/friendships/test')
-        .set('Authorization', token);
+        .set('Authorization', token1);
 
     expect(invalidUserIdFormat.status).toBe(400);
     expect(invalidUserIdFormat.body).toEqual({
@@ -61,12 +68,22 @@ test('Not able to send invalid friend requests', async () => {
     // This will cause a logged error (which is exactly what should happen)
     const noneExistentUser = await request(app)
         .post('/users/friendships/123')
-        .set('Authorization', token);
+        .set('Authorization', token1);
 
     expect(noneExistentUser.status).toBe(500);
     expect(noneExistentUser.body).toEqual({
         success: false,
         message: 'Internal server error!',
+    });
+
+    const sendToYourself = await request(app)
+        .post(`/users/friendships/${user1Data.userId}`)
+        .set('Authorization', token1);
+
+    expect(sendToYourself.status).toBe(400);
+    expect(sendToYourself.body).toEqual({
+        success: false,
+        message: 'Invalid request URL!',
     });
 });
 

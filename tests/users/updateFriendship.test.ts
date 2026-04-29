@@ -21,12 +21,6 @@ import truncateAllTables from '../utilities/truncateAll';
 
 import { prisma } from '../../lib/prisma';
 
-beforeAll(async () => {
-    console.log('###################### SEED START ######################\n');
-    await seedAll();
-    console.log('###################### SEED END ######################\n');
-});
-
 const app = express();
 
 app.use(express.json());
@@ -34,7 +28,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 
-test('Not able to update friendships with invalid input', async () => {
+beforeAll(async () => {
+    console.log('###################### TEST SETUP START ######################\n');
+    await seedAll();
+
     const usersCreated = await createMultipleUsers(
         request,
         app,
@@ -45,7 +42,12 @@ test('Not able to update friendships with invalid input', async () => {
         'test5',
     );
     expect(usersCreated).toBeTruthy();
+    console.log('Test users created');
+    
+    console.log('###################### TEST SETUP END ######################\n');
+});
 
+test('Not able to update friendships with invalid input', async () => {
     const user2Data = await getUserByUsername('test2');
     expect(user2Data).not.toBeNull();
 
