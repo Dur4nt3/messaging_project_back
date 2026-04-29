@@ -5,9 +5,9 @@ import {
     error400,
 } from '../utilities/misc/serverResponses';
 
-import { usersExist } from '../utilities/authorization/chatAuthorization';
-
+import { areUsersFriends } from '../../db/queries/friendship/friendshipQueries';
 import { findPrivateChat } from '../../db/queries/chat/chatQueries';
+
 import { insertChat } from '../../db/queries/chat/chatMutations';
 import { insertChatParticipants } from '../../db/queries/chatParticipant/chatParticipantMutations';
 
@@ -35,9 +35,13 @@ export default async function controllerPostNewPrivateChat(
         return error400(res, 'Private chat already exists!');
     }
 
-    const realUsers = await usersExist([req.user.userId, Number(userId)]);
-    if (!realUsers) {
-        return error400(res, 'Cannot create a chat with an invalid user!');
+    const friends = await areUsersFriends(req.user.userId, Number(userId));
+    if (!friends) {
+        return error400(
+            res,
+            // eslint-disable-next-line quotes
+            "Cannot create a chat with a user who's not your friend!",
+        );
     }
 
     const chat = await insertChat();
