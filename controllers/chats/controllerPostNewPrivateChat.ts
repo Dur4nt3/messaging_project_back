@@ -5,6 +5,8 @@ import {
     error400,
 } from '../utilities/misc/serverResponses';
 
+import { usersExist } from '../utilities/authorization/chatAuthorization';
+
 import { findPrivateChat } from '../../db/queries/chat/chatQueries';
 import { insertChat } from '../../db/queries/chat/chatMutations';
 import { insertChatParticipants } from '../../db/queries/chatParticipant/chatParticipantMutations';
@@ -33,6 +35,11 @@ export default async function controllerPostNewPrivateChat(
         return error400(res, 'Private chat already exists!');
     }
 
+    const realUsers = await usersExist([req.user.userId, Number(userId)]);
+    if (!realUsers) {
+        return error400(res, 'Cannot create a chat with an invalid user!');
+    }
+
     const chat = await insertChat();
 
     if (chat === null) {
@@ -42,6 +49,7 @@ export default async function controllerPostNewPrivateChat(
     const participantsAdded = await insertChatParticipants(
         [req.user.userId, Number(userId)],
         chat.chatId,
+        new Date(),
     );
 
     if (!participantsAdded) {
