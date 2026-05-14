@@ -11,13 +11,13 @@ import {
 import { deleteFriendship } from '../../db/queries/friendship/friendshipMutations';
 import { return500OrBlank200 } from '../utilities/misc/responseBranching';
 
+import isUserAuthenticated from '../utilities/authentication/isUserAuthenticated';
+
 export default async function controllerDeleteFriendship(
     req: Request,
     res: Response,
 ) {
-    const isAuthenticated = !!req.user;
-
-    if (!isAuthenticated || req.user === undefined) {
+    if (!isUserAuthenticated(req.user)) {
         return error401(res);
     }
 

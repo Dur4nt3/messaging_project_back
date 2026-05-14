@@ -17,12 +17,12 @@ import {
 } from '../utilities/misc/serverResponses';
 import { return500OrBlank200 } from '../utilities/misc/responseBranching';
 
+import isUserAuthenticated from '../utilities/authentication/isUserAuthenticated';
+
 const controllerPatchFriendship: any[] = [
     validateFriendshipStatus,
     async (req: Request, res: Response) => {
-        const isAuthenticated = !!req.user;
-
-        if (!isAuthenticated || req.user === undefined) {
+        if (!isUserAuthenticated(req.user)) {
             return error401(res);
         }
 

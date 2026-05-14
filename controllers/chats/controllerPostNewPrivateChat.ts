@@ -11,13 +11,13 @@ import { findPrivateChat } from '../../db/queries/chat/chatQueries';
 import { insertChat } from '../../db/queries/chat/chatMutations';
 import { insertChatParticipants } from '../../db/queries/chatParticipant/chatParticipantMutations';
 
+import isUserAuthenticated from '../utilities/authentication/isUserAuthenticated';
+
 export default async function controllerPostNewPrivateChat(
     req: Request,
     res: Response,
 ) {
-    const isAuthenticated = !!req.user;
-
-    if (!isAuthenticated || req.user === undefined) {
+    if (!isUserAuthenticated(req.user)) {
         return error401(res);
     }
 

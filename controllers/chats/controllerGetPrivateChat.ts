@@ -8,13 +8,13 @@ import {
 import { findPrivateChat } from '../../db/queries/chat/chatQueries';
 import { updateChatVisibility } from '../../db/queries/chatParticipant/chatParticipantMutations';
 
+import isUserAuthenticated from '../utilities/authentication/isUserAuthenticated';
+
 export default async function controllerGetPrivateChat(
     req: Request,
     res: Response,
 ) {
-    const isAuthenticated = !!req.user;
-
-    if (!isAuthenticated || req.user === undefined) {
+    if (!isUserAuthenticated(req.user)) {
         return error401(res);
     }
 

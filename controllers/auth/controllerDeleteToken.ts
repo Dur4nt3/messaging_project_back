@@ -6,13 +6,13 @@ import { blacklistToken } from '../../db/queries/tokenBlacklist/tokenBlacklistMu
 
 import { error401 } from '../utilities/misc/serverResponses';
 
+import isUserAuthenticated from '../utilities/authentication/isUserAuthenticated';
+
 export default async function controllerDeleteToken(
     req: Request,
     res: Response,
 ) {
-    const isAuthenticated = !!req.user;
-
-    if (!isAuthenticated || req.user === undefined) {
+    if (!isUserAuthenticated(req.user)) {
         return error401(res);
     }
 
